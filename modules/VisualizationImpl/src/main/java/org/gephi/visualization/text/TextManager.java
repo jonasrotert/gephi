@@ -339,12 +339,16 @@ public class TextManager implements VizArchitecture {
             edgeRefresh = false;
         }
 
+        //## Arial 16, slider all the way down: +5.0f (y) is about 3 lines of text.
+        //## At this size, the node can hold about 25 characters of text per line, and about 5-6 lines of text.
         @Override
         public void drawTextNode(NodeModel objectModel) {
             Node node = objectModel.getNode();
             TextProperties textData = (TextProperties) node.getTextProperties();
             if (textData != null) {
                 String txt = textData.getText();
+                String[] txtLines = txt.split("<br>");          //##    split on <br> tags in text
+
                 float width, height, posX, posY;
 
                 if (txt == null || txt.isEmpty()) {
@@ -369,7 +373,15 @@ public class TextManager implements VizArchitecture {
                 }
                 model.colorMode.textNodeColor(this, objectModel);
 
-                renderer.draw3D(txt, posX, posY, (float) node.z(), sizeFactor);
+                //## Original: renderer.draw3D(txt, posX, posY, (float) node.z(), sizeFactor);
+                //## New multiline rendering:
+                float lineSize = 2.5f;      // This should ideally be adjusted based on the font size
+                posY = posY - ((txtLines.length * lineSize) / 2.0f);
+                for (int i=0; i<txtLines.length; i++) {
+                    renderer.draw3D(txtLines[i], posX, posY, (float) node.z(), sizeFactor);
+                    posY += lineSize;
+                }
+                //renderer.draw3D(txt, posX+5.0f, posY+5.0f, (float) node.z(), sizeFactor);
             }
         }
 
