@@ -357,11 +357,20 @@ public class NodeLabelRenderer implements Renderer {
                 cb.restoreState();
             }
         }
+        //##
+        String[] txtLines = label.split("<br>");          //##    split on <br> tags in text
         cb.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
-        cb.beginText();
-        cb.setFontAndSize(bf, font.getSize());
-        cb.showTextAligned(PdfContentByte.ALIGN_CENTER, label, x, -y - (textHeight / 2f), 0f);
-        cb.endText();
+
+        float lineSize = textHeight + 2;      //## Adjust the spacing of each of the lines of text based on the original height of the text bounding box
+        float posY = y - ((txtLines.length * lineSize) / 2f);
+        for (int i=0; i<txtLines.length; i++) {
+            cb.beginText();
+            cb.setFontAndSize(bf, font.getSize());
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, txtLines[i], x, -posY, 0f);
+            cb.endText();
+            posY += lineSize;
+        }
+
     }
 
     private float getTextHeight(BaseFont baseFont, float fontSize, String text) {
