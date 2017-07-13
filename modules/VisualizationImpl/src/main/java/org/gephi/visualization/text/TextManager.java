@@ -339,8 +339,7 @@ public class TextManager implements VizArchitecture {
             edgeRefresh = false;
         }
 
-        //## Arial 16, slider all the way down: +5.0f (y) is about 3 lines of text.
-        //## At this size, the node can hold about 25 characters of text per line, and about 5-6 lines of text.
+        //## Hacked for multiline rendering when "<br>" tags are inserted into node labels
         @Override
         public void drawTextNode(NodeModel objectModel) {
             Node node = objectModel.getNode();
