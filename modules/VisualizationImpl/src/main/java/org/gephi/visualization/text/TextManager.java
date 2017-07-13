@@ -348,6 +348,7 @@ public class TextManager implements VizArchitecture {
             if (textData != null) {
                 String txt = textData.getText();
                 String[] txtLines = txt.split("<br>");          //##    split on <br> tags in text
+                float txtLen = txt.length();                          //##     for determining (relative) width of each line of text
 
                 float width, height, posX, posY;
 
@@ -374,14 +375,15 @@ public class TextManager implements VizArchitecture {
                 model.colorMode.textNodeColor(this, objectModel);
 
                 //## Original: renderer.draw3D(txt, posX, posY, (float) node.z(), sizeFactor);
-                //## New multiline rendering:
-                float lineSize = 2.5f;      // This should ideally be adjusted based on the font size
-                posY = posY - ((txtLines.length * lineSize) / 2.0f);
+                //## Hacky multiline rendering:
+                float lineSize = height;      //## Adjust the spacing of each of the lines of text based on the original height of the text bounding box
+                posY = node.y() + ((txtLines.length * lineSize) / 2f);
                 for (int i=0; i<txtLines.length; i++) {
-                    renderer.draw3D(txtLines[i], posX, posY, (float) node.z(), sizeFactor);
-                    posY += lineSize;
+                    float lineLen = txtLines[i].length();                   //## get length of this line of text in characters
+                    float xOffset = ((lineLen / txtLen) * width) / 2f;      //## determine approximate width of this line of text
+                    renderer.draw3D(txtLines[i], node.x() - xOffset, posY, (float) node.z(), sizeFactor);
+                    posY -= lineSize;
                 }
-                //renderer.draw3D(txt, posX+5.0f, posY+5.0f, (float) node.z(), sizeFactor);
             }
         }
 
