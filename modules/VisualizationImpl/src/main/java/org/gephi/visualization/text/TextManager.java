@@ -349,12 +349,16 @@ public class TextManager implements VizArchitecture {
             edgeRefresh = false;
         }
 
+        //## Hacked for multiline rendering when "<br>" tags are inserted into node labels
         @Override
         public void drawTextNode(NodeModel objectModel) {
             Node node = objectModel.getNode();
             TextProperties textData = (TextProperties) node.getTextProperties();
             if (textData != null) {
                 String txt = textData.getText();
+                String[] txtLines = txt.split("<br>");          //##    split on <br> tags in text
+                float txtLen = txt.length();                          //##     for determining (relative) width of each line of text
+
                 float width, height, posX, posY;
 
                 if (txt == null || txt.isEmpty()) {
@@ -379,7 +383,16 @@ public class TextManager implements VizArchitecture {
                 }
                 model.colorMode.textNodeColor(this, objectModel);
 
-                renderer.draw3D(txt, posX, posY, (float) node.z(), sizeFactor);
+                //## Original: renderer.draw3D(txt, posX, posY, (float) node.z(), sizeFactor);
+                //## Hacky multiline rendering:
+                float lineSize = height;      //## Adjust the spacing of each of the lines of text based on the original height of the text bounding box
+                posY = node.y() + ((txtLines.length * lineSize) / 2f);
+                for (int i=0; i<txtLines.length; i++) {
+                    float lineLen = txtLines[i].length();                   //## get length of this line of text in characters
+                    float xOffset = ((lineLen / txtLen) * width) / 2f;      //## determine approximate width of this line of text
+                    renderer.draw3D(txtLines[i], node.x() - xOffset, posY, (float) node.z(), sizeFactor);
+                    posY -= lineSize;
+                }
             }
         }
 
